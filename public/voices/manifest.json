@@ -1,0 +1,46 @@
+{
+  "voices": [
+    {
+      "id": "v1",
+      "name": "Voice 1",
+      "emoji": "🤞",
+      "image": "",
+      "sampleAudio": ""
+    },
+    {
+      "id": "v2",
+      "name": "Voice 2",
+      "emoji": "🗡️",
+      "image": "",
+      "sampleAudio": ""
+    },
+    {
+      "id": "v3",
+      "name": "Voice 3",
+      "emoji": "🎭",
+      "image": "",
+      "sampleAudio": ""
+    },
+    {
+      "id": "v4",
+      "name": "Voice 4",
+      "emoji": "👹",
+      "image": "",
+      "sampleAudio": ""
+    },
+    {
+      "id": "v5",
+      "name": "Voice 5",
+      "emoji": "🔥",
+      "image": "",
+      "sampleAudio": ""
+    },
+    {
+      "id": "v6",
+      "name": "Voice 6",
+      "emoji": "⚔️",
+      "image": "",
+      "sampleAudio": ""
+    }
+  ]
+}

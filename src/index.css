@@ -1,0 +1,387 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --color-bg: #0b0b0f;
+  --color-surface: #121215;
+  --color-primary: #8b5cf6;
+  --color-secondary: #06b6d4;
+  --color-success: #10b981;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Landing Page Animations */
+@keyframes equalizer {
+  0%,
+  100% {
+    height: 40%;
+  }
+  50% {
+    height: 100%;
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    height: 20%;
+  }
+  50% {
+    height: 100%;
+  }
+}
+
+@keyframes loadwidth {
+  0% {
+    width: 10%;
+  }
+  50% {
+    width: 70%;
+  }
+  100% {
+    width: 90%;
+  }
+}
+
+/* One loop = shift by exactly one strip width. --marquee-count must match JSX strip copies. */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-100% / var(--marquee-count, 6)));
+  }
+}
+
+@keyframes gradient-x {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes pulse-slow {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-scroll {
+  --marquee-count: 6;
+  display: flex;
+  flex-wrap: nowrap;
+  width: max-content;
+  animation: scroll 40s linear infinite;
+  will-change: transform;
+}
+
+.animate-gradient-x {
+  background-size: 200% auto;
+  animation: gradient-x 4s ease infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
+}
+
+/* Unlimited TTS section */
+@keyframes unlimited-tts-orb-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translate(28px, -24px) scale(1.12);
+    opacity: 0.9;
+  }
+}
+
+@keyframes unlimited-tts-orb-drift-b {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1.05);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translate(-32px, 20px) scale(0.92);
+    opacity: 0.75;
+  }
+}
+
+@keyframes unlimited-tts-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes unlimited-tts-shine {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(200%) skewX(-12deg);
+  }
+}
+
+.unlimited-tts-orb-a {
+  animation: unlimited-tts-orb-drift 16s ease-in-out infinite;
+}
+
+.unlimited-tts-orb-b {
+  animation: unlimited-tts-orb-drift-b 22s ease-in-out infinite;
+  animation-delay: -3s;
+}
+
+.unlimited-tts-intro {
+  animation: unlimited-tts-fade-in-up 0.75s ease-out both;
+}
+
+.unlimited-tts-intro-delay {
+  animation: unlimited-tts-fade-in-up 0.75s ease-out 0.1s both;
+}
+
+.unlimited-tts-intro-body {
+  animation: unlimited-tts-fade-in-up 0.75s ease-out 0.24s both;
+}
+
+.unlimited-tts-stagger > * {
+  animation: unlimited-tts-fade-in-up 0.7s ease-out both;
+}
+
+.unlimited-tts-stagger > *:nth-child(1) {
+  animation-delay: 0.18s;
+}
+
+.unlimited-tts-stagger > *:nth-child(2) {
+  animation-delay: 0.32s;
+}
+
+.unlimited-tts-stagger > *:nth-child(3) {
+  animation-delay: 0.46s;
+}
+
+.unlimited-tts-card-shine {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.unlimited-tts-card-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.04) 50%,
+    transparent 60%
+  );
+  animation: unlimited-tts-shine 4.5s ease-in-out infinite;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.group:hover .unlimited-tts-card-shine::after {
+  opacity: 1;
+}
+
+.perspective-1000 {
+  perspective: 200px;
+}
+
+.rotate-y-\[-5deg\] {
+  transform: rotateY(-5deg);
+}
+
+.glass {
+  background: rgba(26, 26, 26, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glow-text {
+  text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+}
+
+body {
+  background-color: var(--color-bg);
+  color: white;
+  font-family: var(--font-sans);
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  min-height: 100svh;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.landing-page {
+  overflow: auto;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+::selection {
+  background: rgba(139, 92, 246, 0.35);
+  color: #fafafa;
+}
+
+/* Match desktop ChapterEditorOverlay editor scrollbar */
+.custom-scrollbar-editor::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar-editor::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar-editor::-webkit-scrollbar-thumb {
+  background: rgb(39 39 42);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar-editor::-webkit-scrollbar-thumb:hover {
+  background: rgb(63 63 70);
+}
+
+.custom-scrollbar-editor {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(39 39 42) transparent;
+}
+
+/* Hero: extension scrape → chapter editor */
+@keyframes hero-scrape-scan {
+  0% {
+    transform: translateY(-4px);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateY(120px);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translateY(240px);
+    opacity: 0.2;
+  }
+}
+
+@keyframes hero-scrape-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-data-packet {
+  0%,
+  100% {
+    transform: scaleX(0.4);
+    opacity: 0.2;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes hero-editor-pulse {
+  0%,
+  100% {
+    opacity: 0.06;
+  }
+  50% {
+    opacity: 0.14;
+  }
+}
+
+/* Hero scrape: continuous sweep + shimmer (visible “scanning” motion) */
+@keyframes hero-scrape-sweep {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(350%);
+  }
+}
+
+@keyframes hero-scrape-shimmer {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(200%) skewX(-12deg);
+  }
+}
+
+/* Pricing: founding CTA subtle sheen */
+@keyframes landing-cta-sheen {
+  0% {
+    transform: translateX(-65%) skewX(-14deg);
+  }
+  100% {
+    transform: translateX(220%) skewX(-14deg);
+  }
+}
+
+.landing-cta-sheen {
+  animation: landing-cta-sheen 4.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-cta-sheen {
+    animation: none;
+  }
+}
+
+@source "./pages/**/*.tsx";
+@source "./components/**/*.tsx";
+@source "./App.tsx";

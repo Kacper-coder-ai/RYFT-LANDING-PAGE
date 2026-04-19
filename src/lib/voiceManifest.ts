@@ -21,12 +21,11 @@ export type ResolvedVoice = VoiceManifestEntry & {
 }
 
 const DEFAULT_VOICES: VoiceManifestEntry[] = [
-  { id: 'v1', name: 'Voice 1', emoji: '🤞' },
-  { id: 'v2', name: 'Voice 2', emoji: '🗡️' },
-  { id: 'v3', name: 'Voice 3', emoji: '🎭' },
-  { id: 'v4', name: 'Voice 4', emoji: '👹' },
-  { id: 'v5', name: 'Voice 5', emoji: '🔥' },
-  { id: 'v6', name: 'Voice 6', emoji: '⚔️' },
+  { id: 'heart', name: 'Heart', emoji: '🤞' },
+  { id: 'luna', name: 'Luna', emoji: '🗡️' },
+  { id: 'nova', name: 'Nova', emoji: '🎭' },
+  { id: 'orion', name: 'Orion', emoji: '👹' },
+  { id: 'atlas', name: 'Atlas', emoji: '🔥' },
 ]
 
 /** Paths in manifest are relative to `/voices/` unless already absolute. */
@@ -39,7 +38,11 @@ export function resolveVoiceAssetUrl(
     return p
   }
   const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
-  return `${base}voices/${p.replace(/^\//, '')}`
+  const segments = p
+    .replace(/^\//, '')
+    .split('/')
+    .map((seg) => encodeURIComponent(seg))
+  return `${base}voices/${segments.join('/')}`
 }
 
 export function normalizeVoices(raw: unknown): VoiceManifestEntry[] {

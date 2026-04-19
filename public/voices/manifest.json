@@ -1,46 +1,39 @@
 {
   "voices": [
     {
-      "id": "v1",
-      "name": "Voice 1",
+      "id": "heart",
+      "name": "Heart",
       "emoji": "🤞",
-      "image": "",
-      "sampleAudio": ""
+      "image": "images/heart.jpg",
+      "sampleAudio": "audio/Heart Landing page.wav"
     },
     {
-      "id": "v2",
-      "name": "Voice 2",
+      "id": "luna",
+      "name": "Luna",
       "emoji": "🗡️",
-      "image": "",
-      "sampleAudio": ""
+      "image": "images/luna.jpg",
+      "sampleAudio": "audio/Luna Landing page.wav"
     },
     {
-      "id": "v3",
-      "name": "Voice 3",
+      "id": "nova",
+      "name": "Nova",
       "emoji": "🎭",
-      "image": "",
-      "sampleAudio": ""
+      "image": "images/Nova.jpg",
+      "sampleAudio": "audio/Nova Landing page.wav"
     },
     {
-      "id": "v4",
-      "name": "Voice 4",
+      "id": "orion",
+      "name": "Orion",
       "emoji": "👹",
-      "image": "",
-      "sampleAudio": ""
+      "image": "images/orion.jpg",
+      "sampleAudio": "audio/Orion Landing page.wav"
     },
     {
-      "id": "v5",
-      "name": "Voice 5",
+      "id": "atlas",
+      "name": "Atlas",
       "emoji": "🔥",
-      "image": "",
-      "sampleAudio": ""
-    },
-    {
-      "id": "v6",
-      "name": "Voice 6",
-      "emoji": "⚔️",
-      "image": "",
-      "sampleAudio": ""
+      "image": "images/uifaces-popular-avatar.jpg",
+      "sampleAudio": "audio/Atlas Landing page.wav"
     }
   ]
 }

@@ -235,7 +235,8 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-body.landing-page {
+body.landing-page,
+body.allow-body-scroll {
   overflow: auto;
 }
 

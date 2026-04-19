@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import {
   ArrowDown,
@@ -14,7 +14,8 @@ import {
   GripVertical,
   Infinity,
   Languages,
-  MessageCircle,
+  LogOut,
+  Mail,
   Mic2,
   Music,
   Music2,
@@ -23,7 +24,6 @@ import {
   Plus,
   Puzzle,
   ScanFace,
-  Share2,
   Sparkles,
   Smartphone,
   Ticket,
@@ -37,6 +37,8 @@ import {
   type InterestKind,
 } from '../components/InterestModal'
 import { ExtensionLaunchModal } from '../components/ExtensionLaunchModal'
+import { ContactSupportModal } from '../components/ContactSupportModal'
+import { SocialFooterLinks } from '../components/SocialFooterLinks'
 import { HeroScrapePipeline } from '../components/HeroScrapePipeline'
 import { LaunchCountdown } from '../components/LaunchCountdown'
 import { LocalLibraryPreview } from '../components/LocalLibraryPreview'
@@ -46,6 +48,26 @@ import {
   LandingScrollProgress,
   landingSectionReveal,
 } from '../components/LandingScrollChrome'
+import type { User } from '@supabase/supabase-js'
+import { Link } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
+import { rememberLandingScrollPosition } from '../lib/landingScrollRestore'
+
+function landingNavUserProfile(user: User) {
+  const meta = user.user_metadata ?? {}
+  const avatarUrl =
+    (typeof meta.avatar_url === 'string' && meta.avatar_url) ||
+    (typeof meta.picture === 'string' && meta.picture) ||
+    null
+  const displayName =
+    (typeof meta.full_name === 'string' && meta.full_name) ||
+    (typeof meta.name === 'string' && meta.name) ||
+    null
+  const initial = (
+    displayName?.trim().charAt(0) || user.email?.trim().charAt(0) || '?'
+  ).toUpperCase()
+  return { avatarUrl, displayName, initial }
+}
 
 /**
  * Beta founding offer: one-time lifetime access, strictly 100 seats.
@@ -496,6 +518,7 @@ function HeroChapterEditorPreview({
 }
 
 export function LandingPage() {
+  const { user, loading: authLoading, signOut } = useAuth()
   const manifestVoices = useVoiceManifest()
   const castVoiceRomeo = manifestVoices[0]?.name ?? 'Voice 1'
   const castVoiceJuliet = manifestVoices[1]?.name ?? 'Voice 2'
@@ -518,6 +541,9 @@ export function LandingPage() {
   const [showJuliet, setShowJuliet] = useState(false)
   const [showRomeo, setShowRomeo] = useState(false)
   const [heroEditorChapterIndex, setHeroEditorChapterIndex] = useState(0)
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false)
+  const accountMenuRef = useRef<HTMLDivElement>(null)
+  const [showContactSupportModal, setShowContactSupportModal] = useState(false)
 
   useEffect(() => {
     document.body.classList.add('landing-page')
@@ -556,10 +582,37 @@ export function LandingPage() {
     return () => clearInterval(interval)
   }, [])
 
+  useEffect(() => {
+    if (!accountMenuOpen) return
+    const onPointerDown = (e: MouseEvent) => {
+      const el = accountMenuRef.current
+      if (el && !el.contains(e.target as Node)) {
+        setAccountMenuOpen(false)
+      }
+    }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setAccountMenuOpen(false)
+    }
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [accountMenuOpen])
+
   const openModal = (kind: InterestKind) => {
     setModalKind(kind)
     setShowModal(true)
   }
+
+  const scrollLandingToTop = useCallback(() => {
+    setAccountMenuOpen(false)
+    window.scrollTo({
+      top: 0,
+      behavior: reducedMotion ? 'auto' : 'smooth',
+    })
+  }, [reducedMotion])
 
   const betaLifetimeSoldOut =
     BETA_LIFETIME_SEATS_CLAIMED >= BETA_LIFETIME_SEATS_TOTAL
@@ -578,6 +631,8 @@ export function LandingPage() {
   const showSeatSocialProof =
     BETA_LIFETIME_SEATS_CLAIMED >= BETA_SEATS_SOCIAL_PROOF_THRESHOLD
 
+  const navUser = user ? landingNavUserProfile(user) : null
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#0B0B0F] text-white">
       <InterestModal
@@ -589,12 +644,22 @@ export function LandingPage() {
         isOpen={showExtensionModal}
         onClose={() => setShowExtensionModal(false)}
       />
+      <ContactSupportModal
+        isOpen={showContactSupportModal}
+        onClose={() => setShowContactSupportModal(false)}
+        defaultEmail={user?.email ?? ''}
+      />
 
       <LandingScrollProgress />
 
       <nav className="glass fixed top-0 z-50 w-full transition-all duration-300">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
-          <div className="group flex cursor-pointer items-center gap-3 text-2xl font-black tracking-widest">
+          <button
+            type="button"
+            onClick={scrollLandingToTop}
+            aria-label="Scroll to top"
+            className="group flex cursor-pointer items-center gap-3 border-0 bg-transparent p-0 text-2xl font-black tracking-widest text-inherit transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0B0F]"
+          >
             <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-primary to-secondary shadow-lg transition duration-300 group-hover:shadow-violet-500/50">
               <div className="flex h-5 items-center gap-[3px]">
                 <div
@@ -619,7 +684,7 @@ export function LandingPage() {
             <span className="transition duration-300 group-hover:text-white">
               RYFT
             </span>
-          </div>
+          </button>
 
           <div className="hidden gap-8 text-sm font-medium text-gray-400 md:flex">
             <a href="#voices" className="transition hover:text-white">
@@ -631,16 +696,93 @@ export function LandingPage() {
             <a href="#pricing" className="transition hover:text-white">
               Pricing
             </a>
-          </div>
-
-          <div className="flex items-center gap-4">
             <button
               type="button"
-              onClick={() => openModal('login')}
-              className="hidden px-4 py-2 text-sm font-medium text-gray-300 transition hover:text-white md:block"
+              onClick={() => setShowContactSupportModal(true)}
+              className="cursor-pointer border-0 bg-transparent p-0 text-left font-medium transition hover:text-white"
             >
-              Login
+              Support
             </button>
+          </div>
+
+          <div className="flex min-w-0 items-center gap-2 sm:gap-4">
+            <button
+              type="button"
+              onClick={() => setShowContactSupportModal(true)}
+              className="shrink-0 text-sm font-medium text-gray-400 transition hover:text-white md:hidden"
+            >
+              Support
+            </button>
+            {user && navUser ? (
+              <div className="relative shrink-0" ref={accountMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setAccountMenuOpen((o) => !o)}
+                  aria-expanded={accountMenuOpen}
+                  aria-haspopup="menu"
+                  aria-label="Account menu"
+                  className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/10 ring-2 ring-transparent transition hover:border-white/25 hover:bg-white/15 focus:outline-none focus-visible:ring-primary/50"
+                >
+                  {navUser.avatarUrl ? (
+                    <img
+                      src={navUser.avatarUrl}
+                      alt=""
+                      className="h-full w-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <span className="text-sm font-bold text-white">
+                      {navUser.initial}
+                    </span>
+                  )}
+                </button>
+                {accountMenuOpen ? (
+                  <div
+                    className="absolute right-0 z-[60] mt-2 w-56 overflow-hidden rounded-xl border border-white/10 bg-[#14141c]/95 py-1 shadow-xl shadow-black/40 backdrop-blur-md"
+                    role="menu"
+                  >
+                    {navUser.displayName ? (
+                      <p className="border-b border-white/10 px-3 py-2 text-sm font-medium text-white">
+                        {navUser.displayName}
+                      </p>
+                    ) : null}
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-gray-300 transition hover:bg-white/10 hover:text-white"
+                      onClick={() => {
+                        setAccountMenuOpen(false)
+                        setShowContactSupportModal(true)
+                      }}
+                    >
+                      <Mail className="h-4 w-4 shrink-0 opacity-70" />
+                      Contact support
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setAccountMenuOpen(false)
+                        void signOut()
+                      }}
+                      className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-gray-300 transition hover:bg-white/10 hover:text-white"
+                    >
+                      <LogOut className="h-4 w-4 shrink-0 opacity-70" />
+                      Sign out
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openModal('login')}
+                disabled={authLoading}
+                className="shrink-0 px-3 py-2 text-sm font-medium text-gray-300 transition hover:text-white disabled:opacity-50 md:px-4"
+              >
+                Login
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setShowExtensionModal(true)}
@@ -740,7 +882,7 @@ export function LandingPage() {
 
       <motion.section
         id="unlimited-tts"
-        className="relative overflow-hidden border-y border-white/5 bg-[#08080c] py-14 md:py-16"
+        className="relative overflow-x-hidden overflow-y-visible border-y border-white/5 bg-[#08080c] py-14 md:py-16"
         {...sectionReveal}
       >
         <div
@@ -808,7 +950,7 @@ export function LandingPage() {
             </p>
           </div>
 
-          <LocalLibraryPreview interactive={false} />
+          <LocalLibraryPreview />
         </div>
       </motion.section>
 
@@ -1556,7 +1698,12 @@ export function LandingPage() {
         {...sectionReveal}
       >
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-6 md:flex-row">
-          <div className="group flex items-center gap-3 text-2xl font-black tracking-widest">
+          <button
+            type="button"
+            onClick={scrollLandingToTop}
+            aria-label="Scroll to top"
+            className="group flex cursor-pointer items-center gap-3 border-0 bg-transparent p-0 text-2xl font-black tracking-widest text-inherit transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+          >
             <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-primary to-secondary shadow-lg transition duration-300 group-hover:shadow-violet-500/50">
               <div className="flex h-5 items-center gap-[3px]">
                 <div
@@ -1581,18 +1728,53 @@ export function LandingPage() {
             <span className="transition duration-300 group-hover:text-white">
               RYFT
             </span>
+          </button>
+          <div className="flex flex-col items-center gap-2 text-center text-sm text-gray-500">
+            <span className="w-full">&copy; 2026 Ryft.us. All rights reserved.</span>
+            <nav
+              className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1"
+              aria-label="Legal and support"
+            >
+              <Link
+                to="/privacy"
+                onClick={rememberLandingScrollPosition}
+                className="text-gray-500 underline-offset-4 transition hover:text-white hover:underline"
+              >
+                Privacy Policy
+              </Link>
+              <span className="text-gray-600" aria-hidden>
+                ·
+              </span>
+              <Link
+                to="/terms"
+                onClick={rememberLandingScrollPosition}
+                className="text-gray-500 underline-offset-4 transition hover:text-white hover:underline"
+              >
+                Terms of Service
+              </Link>
+              <span className="text-gray-600" aria-hidden>
+                ·
+              </span>
+              <Link
+                to="/refunds"
+                onClick={rememberLandingScrollPosition}
+                className="text-gray-500 underline-offset-4 transition hover:text-white hover:underline"
+              >
+                Refund Policy
+              </Link>
+              <span className="text-gray-600" aria-hidden>
+                ·
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowContactSupportModal(true)}
+                className="text-gray-500 underline-offset-4 transition hover:text-white hover:underline"
+              >
+                Contact support
+              </button>
+            </nav>
           </div>
-          <div className="text-sm text-gray-500">
-            &copy; 2026 Ryft.us. All rights reserved.
-          </div>
-          <div className="flex gap-6">
-            <a href="#" className="text-gray-500 hover:text-white">
-              <Share2 className="h-5 w-5" />
-            </a>
-            <a href="#" className="text-gray-500 hover:text-white">
-              <MessageCircle className="h-5 w-5" />
-            </a>
-          </div>
+          <SocialFooterLinks />
         </div>
       </motion.footer>
     </div>

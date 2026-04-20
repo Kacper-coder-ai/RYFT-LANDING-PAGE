@@ -14,6 +14,8 @@ import {
   Loader2,
   Lock,
   MoreHorizontal,
+  Music2,
+  Play,
   Puzzle,
   RotateCw,
   Sparkles,
@@ -85,13 +87,16 @@ function easeInOutQuint(t: number): number {
 }
 
 /** Time each “scene” stays on screen (slideshow / video-style pacing). */
-const SLIDE_MS = [11500, 2800, 7000] as const
+const SLIDE_MS = [11500, 2800, 7000, 8500] as const
 
 const SLIDE_LABELS = [
-  'Scrape from the site',
+  'Analyze Site',
   'Send into RYFT',
   'Edit in the overlay',
+  'Generate Audio',
 ] as const
+
+const SLIDE_COUNT = SLIDE_LABELS.length
 
 const transition = { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const }
 
@@ -115,7 +120,7 @@ export function HeroScrapePipeline({
   useEffect(() => {
     const ms = SLIDE_MS[slide]
     const t = window.setTimeout(() => {
-      setSlide((s) => (s + 1) % 3)
+      setSlide((s) => (s + 1) % SLIDE_COUNT)
     }, ms)
     return () => window.clearTimeout(t)
   }, [slide])
@@ -173,7 +178,7 @@ export function HeroScrapePipeline({
   return (
     <div
       className={`flex min-h-0 w-full min-w-0 flex-1 flex-col ${
-        interactive ? '' : 'pointer-events-none select-none'
+        interactive ? '' : 'select-none'
       }`}
     >
       <div className="relative w-full flex-1 min-h-[min(26rem,52vh)] overflow-hidden bg-[#0a0a0f] sm:min-h-[min(30rem,55vh)] md:min-h-0">
@@ -314,7 +319,11 @@ export function HeroScrapePipeline({
                   <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-b-lg">
                     <div
                       ref={articleScrollRef}
-                      className="relative z-10 min-h-0 flex-1 overflow-y-auto scroll-auto"
+                      className={`relative z-10 min-h-0 flex-1 ${
+                        interactive
+                          ? 'overflow-y-auto scroll-auto'
+                          : 'overflow-y-hidden'
+                      }`}
                     >
                       <article className="mx-auto max-w-xl px-5 pb-8 pt-8 sm:px-8 sm:pb-10 sm:pt-10">
                       <p className="mb-3 font-sans text-[10px] font-medium tracking-wide text-stone-400 uppercase">
@@ -505,8 +514,8 @@ export function HeroScrapePipeline({
                 Sending chapters to RYFT
               </h3>
               <p className="max-w-md text-center text-sm leading-relaxed text-gray-400 sm:text-base">
-                Your scraped text is piped straight into the desktop workflow—no
-                copy-paste marathon.
+                Text from the analyzed page is piped straight into the desktop
+                workflow—no copy-paste marathon.
               </p>
             </motion.div>
           ) : null}
@@ -533,23 +542,122 @@ export function HeroScrapePipeline({
               </div>
             </motion.div>
           ) : null}
+
+          {slide === 3 ? (
+            <motion.div
+              key="generate"
+              role="img"
+              aria-label="Animation: TTS audio generating in RYFT"
+              className="absolute inset-0 flex flex-col bg-[#0B0B0F]"
+              initial={{ opacity: 0, x: 28 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={transition}
+            >
+              <div className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 bg-[#0a0a0c] px-4 py-3 sm:px-5 sm:py-3.5">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/20 sm:h-11 sm:w-11">
+                    <Loader2
+                      className="h-5 w-5 animate-spin text-primary sm:h-6 sm:w-6"
+                      aria-hidden
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold tracking-wider text-gray-500 uppercase sm:text-[11px]">
+                      RYFT engine
+                    </p>
+                    <p className="truncate text-sm font-bold text-white sm:text-base">
+                      Generating audio
+                    </p>
+                  </div>
+                </div>
+                <span className="shrink-0 rounded-full border border-primary/35 bg-primary/10 px-2.5 py-1 text-[9px] font-bold tracking-wide text-primary animate-pulse sm:px-3 sm:text-[10px]">
+                  SYNTHESIZING
+                </span>
+              </div>
+
+              <div
+                className={`flex min-h-0 flex-1 flex-col justify-center px-4 py-5 sm:px-6 sm:py-7 ${
+                  interactive ? 'overflow-y-auto' : 'overflow-y-hidden'
+                }`}
+              >
+                <div className="mx-auto w-full max-w-xl space-y-4 sm:max-w-2xl sm:space-y-5">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 shadow-xl sm:p-6">
+                    <div className="mb-4 flex items-start justify-between gap-3 sm:mb-5">
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-bold tracking-wider text-gray-500 uppercase sm:text-xs">
+                          Active chapter
+                        </p>
+                        <p className="truncate text-lg font-bold text-white sm:text-xl">
+                          Volume I, Chapter I
+                        </p>
+                        <p className="mt-0.5 text-sm text-gray-400 sm:text-base">
+                          Pride and Prejudice · Heart (Female)
+                        </p>
+                      </div>
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 sm:h-12 sm:w-12">
+                        <Play className="h-5 w-5 text-primary sm:h-6 sm:w-6" aria-hidden />
+                      </div>
+                    </div>
+                    <div className="mb-2 h-2 w-full overflow-hidden rounded-full bg-gray-800 sm:h-2.5">
+                      <div className="h-full rounded-full bg-gradient-to-r from-primary to-cyan-500 animate-[loadwidth_4s_ease-in-out_infinite]" />
+                    </div>
+                    <div className="flex justify-between font-mono text-[10px] text-gray-500 sm:text-xs">
+                      <span>~8.4 min est. · WAV</span>
+                      <span className="font-bold text-primary animate-pulse">Synthesizing…</span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 sm:p-5">
+                    <div className="mb-3 flex items-center gap-2 sm:mb-3.5">
+                      <Music2 className="h-4 w-4 text-gray-500 sm:h-5 sm:w-5" aria-hidden />
+                      <p className="text-[10px] font-bold tracking-wider text-gray-500 uppercase sm:text-xs">
+                        Output
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 text-[11px] sm:gap-2.5 sm:text-xs">
+                      <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-gray-300 sm:px-3 sm:py-1.5">
+                        Batch: Ch 1–12
+                      </span>
+                      <span className="rounded-lg border border-purple-500/30 bg-purple-500/15 px-2.5 py-1 font-bold text-purple-400 sm:px-3 sm:py-1.5">
+                        WAV · 48 kHz
+                      </span>
+                      <span className="ml-auto flex items-center gap-1.5 text-[10px] font-bold text-primary sm:text-xs">
+                        <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-primary" />
+                        Processing
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="shrink-0 border-t border-white/10 bg-[#0a0a0c]/95 px-4 py-3 backdrop-blur-sm sm:px-6">
+                <div className="mx-auto flex max-w-2xl items-center justify-center">
+                  <div className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-violet-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/25 sm:px-6 sm:py-3 sm:text-base">
+                    <Loader2 className="h-4 w-4 shrink-0 animate-spin sm:h-5 sm:w-5" aria-hidden />
+                    Generate audio
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ) : null}
         </AnimatePresence>
       </div>
 
       {/* Slideshow / video-style step bar */}
       <div className="shrink-0 border-t border-white/10 bg-black/50 px-3 py-3 sm:px-5">
-        <div className="mx-auto flex max-w-lg items-center justify-between gap-2">
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-1 sm:gap-2">
           {SLIDE_LABELS.map((label, i) => {
             const bar = (
               <>
                 <span
-                  className={`h-1.5 w-full max-w-[4rem] rounded-full transition sm:max-w-[5.5rem] ${
+                  className={`h-1.5 w-full max-w-[2.75rem] rounded-full transition sm:max-w-[3.5rem] md:max-w-[4.5rem] ${
                     slide === i
                       ? 'bg-gradient-to-r from-primary to-secondary'
                       : 'bg-white/10'
                   }`}
                 />
-                <span className="text-[9px] font-semibold tracking-wide uppercase sm:text-[10px]">
+                <span className="max-w-[4.5rem] text-center text-[8px] font-semibold leading-tight tracking-wide uppercase sm:max-w-none sm:text-[9px] md:text-[10px]">
                   {label}
                 </span>
               </>

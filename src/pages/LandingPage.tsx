@@ -833,7 +833,7 @@ export function LandingPage() {
               {/* ChapterEditorOverlay-style preview: chapter list + editor + bottom dock (voice/format live in dock, not RightSidebar) */}
               <div className="relative flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden border-b border-white/5 bg-white/[0.02] md:min-h-[min(38rem,70vh)] md:border-b-0">
                 <p className="shrink-0 border-b border-white/5 px-4 py-2 text-center text-[10px] font-medium tracking-wide text-gray-500 uppercase md:text-left md:px-5">
-                  Demo · Scrape → send → chapter editor
+                  Demo · Analyze Site → send → editor → generate
                 </p>
                 <HeroScrapePipeline interactive={false}>
                   <HeroChapterEditorPreview
@@ -849,13 +849,10 @@ export function LandingPage() {
               <button
                 type="button"
                 onClick={() => setShowExtensionModal(true)}
-                className="group inline-flex items-center gap-2 rounded-full border border-white/20 bg-[#1A1A1A] px-8 py-3 font-bold text-white shadow-2xl transition hover:-translate-y-1 hover:bg-black"
+                className="group inline-flex items-center gap-2 rounded-full border border-primary/35 bg-primary/90 px-8 py-3 text-sm font-bold text-white shadow-2xl shadow-primary/25 transition duration-500 hover:-translate-y-1 hover:border-primary/50 hover:bg-violet-600 hover:shadow-primary/35 sm:text-base"
               >
-                <Puzzle className="h-5 w-5 text-primary transition duration-500 group-hover:rotate-180" />
-                Add to Chrome{' '}
-                <span className="ml-2 font-normal text-gray-500">
-                  It&apos;s Free
-                </span>
+                <Puzzle className="h-5 w-5 shrink-0 text-white transition duration-500 group-hover:rotate-180" />
+                Extension Download
               </button>
             </div>
           </div>
@@ -1434,7 +1431,7 @@ export function LandingPage() {
                               </div>
                               <span>
                                 Full access to the extension that allows you to
-                                scrape any webnovel from the internet.
+                                analyze any webnovel site and bring it into RYFT.
                               </span>
                             </li>
                             <li className="flex items-start gap-2.5">

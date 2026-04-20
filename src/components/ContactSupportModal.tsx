@@ -90,7 +90,7 @@ export function ContactSupportModal({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.94, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 380, damping: 28 }}
-            className="glass-panel relative w-full max-w-md rounded-2xl border border-white/10 bg-[#12121a] p-8 shadow-2xl"
+            className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#14141c] p-8 shadow-2xl"
             onClick={(ev) => ev.stopPropagation()}
             role="dialog"
             aria-modal="true"
@@ -141,9 +141,9 @@ export function ContactSupportModal({
                 >
                   Contact support
                 </h2>
-                <p className="mb-6 text-sm text-gray-500">
+                <p className="mb-6 text-sm text-gray-400">
                   Send a message to{' '}
-                  <span className="font-mono text-gray-400">{SUPPORT_EMAIL}</span>
+                  <span className="font-mono text-gray-300">{SUPPORT_EMAIL}</span>
                 </p>
 
                 {!isWeb3FormsConfigured() ? (
@@ -162,9 +162,12 @@ export function ContactSupportModal({
                   <div>
                     <label
                       htmlFor="support-name"
-                      className="mb-1.5 block text-xs font-medium tracking-wide text-gray-500 uppercase"
+                      className="mb-1.5 block text-xs font-semibold tracking-wide text-gray-300 uppercase"
                     >
-                      Name <span className="font-normal text-gray-600">(optional)</span>
+                      Name{' '}
+                      <span className="font-normal normal-case text-gray-400">
+                        (optional)
+                      </span>
                     </label>
                     <input
                       id="support-name"
@@ -172,7 +175,7 @@ export function ContactSupportModal({
                       autoComplete="name"
                       value={name}
                       onChange={(ev) => setName(ev.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      className="w-full rounded-xl border border-white/25 bg-[#1a1a22] px-4 py-3 text-sm text-white placeholder:text-gray-400 focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/35"
                       placeholder="Your name"
                       disabled={busy}
                     />
@@ -180,7 +183,7 @@ export function ContactSupportModal({
                   <div>
                     <label
                       htmlFor="support-email"
-                      className="mb-1.5 block text-xs font-medium tracking-wide text-gray-500 uppercase"
+                      className="mb-1.5 block text-xs font-semibold tracking-wide text-gray-300 uppercase"
                     >
                       Email
                     </label>
@@ -191,7 +194,7 @@ export function ContactSupportModal({
                       required
                       value={email}
                       onChange={(ev) => setEmail(ev.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      className="w-full rounded-xl border border-white/25 bg-[#1a1a22] px-4 py-3 text-sm text-white placeholder:text-gray-400 focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/35"
                       placeholder="you@example.com"
                       disabled={busy}
                     />
@@ -199,7 +202,7 @@ export function ContactSupportModal({
                   <div>
                     <label
                       htmlFor="support-message"
-                      className="mb-1.5 block text-xs font-medium tracking-wide text-gray-500 uppercase"
+                      className="mb-1.5 block text-xs font-semibold tracking-wide text-gray-300 uppercase"
                     >
                       Message
                     </label>
@@ -209,7 +212,7 @@ export function ContactSupportModal({
                       rows={5}
                       value={message}
                       onChange={(ev) => setMessage(ev.target.value)}
-                      className="w-full resize-y rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      className="w-full resize-y rounded-xl border border-white/25 bg-[#1a1a22] px-4 py-3 text-sm text-white placeholder:text-gray-400 focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/35"
                       placeholder="How can we help?"
                       disabled={busy}
                     />

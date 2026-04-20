@@ -99,7 +99,7 @@ export function LoginAuthPanel({ onSuccess }: { onSuccess?: () => void }) {
 
   return (
     <div className="space-y-5">
-      <div className="flex rounded-xl border border-white/10 bg-white/5 p-1">
+      <div className="flex rounded-xl border border-white/15 bg-[#1a1a22] p-1">
         <button
           type="button"
           onClick={() => {
@@ -110,7 +110,7 @@ export function LoginAuthPanel({ onSuccess }: { onSuccess?: () => void }) {
           className={`flex-1 rounded-lg py-2 text-sm font-semibold transition ${
             mode === 'signin'
               ? 'bg-primary text-white shadow-lg shadow-violet-500/20'
-              : 'text-gray-400 hover:text-white'
+              : 'text-gray-300 hover:text-white'
           }`}
         >
           Sign in
@@ -125,7 +125,7 @@ export function LoginAuthPanel({ onSuccess }: { onSuccess?: () => void }) {
           className={`flex-1 rounded-lg py-2 text-sm font-semibold transition ${
             mode === 'signup'
               ? 'bg-primary text-white shadow-lg shadow-violet-500/20'
-              : 'text-gray-400 hover:text-white'
+              : 'text-gray-300 hover:text-white'
           }`}
         >
           Create account
@@ -170,10 +170,10 @@ export function LoginAuthPanel({ onSuccess }: { onSuccess?: () => void }) {
           Continue with Google
         </button>
 
-        <div className="flex items-center gap-3 text-xs text-gray-500">
-          <span className="h-px flex-1 bg-white/10" />
+        <div className="flex items-center gap-3 text-xs text-gray-400">
+          <span className="h-px flex-1 bg-white/15" />
           or email
-          <span className="h-px flex-1 bg-white/10" />
+          <span className="h-px flex-1 bg-white/15" />
         </div>
       </div>
 
@@ -187,7 +187,7 @@ export function LoginAuthPanel({ onSuccess }: { onSuccess?: () => void }) {
         <div>
           <label
             htmlFor="auth-email"
-            className="mb-1.5 block text-xs font-medium tracking-wide text-gray-500 uppercase"
+            className="mb-1.5 block text-xs font-semibold tracking-wide text-gray-300 uppercase"
           >
             Email
           </label>
@@ -197,7 +197,7 @@ export function LoginAuthPanel({ onSuccess }: { onSuccess?: () => void }) {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+            className="w-full rounded-xl border border-white/25 bg-[#1a1a22] px-4 py-3 text-sm text-white placeholder:text-gray-400 focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/35"
             placeholder="you@example.com"
             disabled={disabled}
           />
@@ -205,7 +205,7 @@ export function LoginAuthPanel({ onSuccess }: { onSuccess?: () => void }) {
         <div>
           <label
             htmlFor="auth-password"
-            className="mb-1.5 block text-xs font-medium tracking-wide text-gray-500 uppercase"
+            className="mb-1.5 block text-xs font-semibold tracking-wide text-gray-300 uppercase"
           >
             Password
           </label>
@@ -215,7 +215,7 @@ export function LoginAuthPanel({ onSuccess }: { onSuccess?: () => void }) {
             autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+            className="w-full rounded-xl border border-white/25 bg-[#1a1a22] px-4 py-3 text-sm text-white placeholder:text-gray-400 focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/35"
             placeholder="••••••••"
             disabled={disabled}
           />

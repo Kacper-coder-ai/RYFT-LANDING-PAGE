@@ -58,27 +58,6 @@ const UNSORTED_CHAPTERS: {
     meta: '4.2 hr · 1.1 GB',
     fmt: 'WAV',
   },
-  {
-    id: 'u2',
-    book: 'The Hound of the Baskervilles',
-    chapter: 'Chapter 3',
-    meta: '6.8 hr · 412 MB',
-    fmt: 'MP3',
-  },
-  {
-    id: 'u3',
-    book: 'Moby-Dick',
-    chapter: 'Chapter 36',
-    meta: '18.4 hr · 2.4 GB',
-    fmt: 'FLAC',
-  },
-  {
-    id: 'u4',
-    book: 'Worm',
-    chapter: 'Arc 12, Chapter 5',
-    meta: '142.6 hr · 8.9 GB',
-    fmt: 'M4A',
-  },
 ]
 
 /**

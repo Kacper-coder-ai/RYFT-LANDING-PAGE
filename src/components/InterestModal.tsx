@@ -92,7 +92,11 @@ export function InterestModal({ isOpen, kind, onClose }: Props) {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.94, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 380, damping: 28 }}
-            className="glass-panel relative w-full max-w-md rounded-2xl p-8"
+            className={`relative w-full max-w-md rounded-2xl p-8 ${
+              isLogin
+                ? 'border border-white/10 bg-[#14141c]'
+                : 'glass-panel'
+            }`}
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"

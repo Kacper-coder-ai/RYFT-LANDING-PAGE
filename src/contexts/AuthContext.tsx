@@ -83,7 +83,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: email.trim(),
       password,
     })
-    return { error: error?.message ?? null }
+    if (!error) return { error: null }
+    if (error.message === 'Invalid login credentials') {
+      return {
+        error:
+          'It looks like you might have signed up with Google! Try clicking the Continue with Google button instead.',
+      }
+    }
+    return { error: error.message }
   }, [])
 
   const signUp = useCallback(async (email: string, password: string) => {

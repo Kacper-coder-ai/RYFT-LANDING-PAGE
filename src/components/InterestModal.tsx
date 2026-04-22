@@ -5,8 +5,11 @@ import { useAuth } from '../contexts/AuthContext'
 import {
   getPaddleInstance,
   getPaddlePriceId,
+  getPaddleSubscriptionPriceId,
   isPaddleCheckoutConfigured,
+  isPaddleSubscriptionCheckoutConfigured,
 } from '../lib/paddle'
+import { getSupabase, isSupabaseConfigured } from '../lib/supabase'
 import { LoginAuthPanel } from './LoginAuthPanel'
 
 export type InterestKind = 'login' | 'beta-lifetime' | 'subscribe'
@@ -15,6 +18,8 @@ type Props = {
   isOpen: boolean
   kind: InterestKind
   onClose: () => void
+  /** Used when `kind` is `subscribe` to pick the Paddle price (monthly vs yearly). */
+  subscriptionBilling?: 'monthly' | 'yearly'
 }
 
 const copy: Record<
@@ -31,15 +36,23 @@ const copy: Record<
   },
   subscribe: {
     title: 'Subscribe to RYFT',
-    body: 'Subscriptions are managed in the Ryft web app after you sign in. This landing build has no checkout or database attached.',
+    body: 'Add Paddle subscription price IDs and your Supabase keys to .env to open sandbox checkout here. Sign in first so your subscription can be linked to your account.',
   },
 }
 
-export function InterestModal({ isOpen, kind, onClose }: Props) {
+export function InterestModal({
+  isOpen,
+  kind,
+  onClose,
+  subscriptionBilling = 'monthly',
+}: Props) {
   const { title, body } = copy[kind]
   const isLogin = kind === 'login'
   const isBetaLifetime = kind === 'beta-lifetime'
+  const isSubscribe = kind === 'subscribe'
   const paddleReady = isPaddleCheckoutConfigured()
+  const paddleSubscriptionReady =
+    isSubscribe && isPaddleSubscriptionCheckoutConfigured(subscriptionBilling)
   const { user } = useAuth()
   const [paddleBusy, setPaddleBusy] = useState(false)
   const [paddleError, setPaddleError] = useState<string | null>(null)
@@ -48,6 +61,29 @@ export function InterestModal({ isOpen, kind, onClose }: Props) {
     setPaddleError(null)
     setPaddleBusy(true)
     try {
+      if (!isSupabaseConfigured()) {
+        setPaddleError(
+          'Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.',
+        )
+        return
+      }
+      const supabase = getSupabase()
+      if (!supabase) {
+        setPaddleError('Supabase client is not available.')
+        return
+      }
+      const {
+        data: { user: authUser },
+        error: authError,
+      } = await supabase.auth.getUser()
+      if (authError || !authUser?.id) {
+        setPaddleError(
+          authError?.message ??
+            'Sign in to claim a founding seat so we can attach your payment to your account.',
+        )
+        return
+      }
+
       const paddle = await getPaddleInstance()
       const priceId = getPaddlePriceId()
       if (!paddle || !priceId) {
@@ -58,9 +94,10 @@ export function InterestModal({ isOpen, kind, onClose }: Props) {
       }
       paddle.Checkout.open({
         items: [{ priceId, quantity: 1 }],
-        customer: user?.email ? { email: user.email } : undefined,
+        customer: authUser.email ? { email: authUser.email } : undefined,
         customData: {
           flow: 'landing_founding_seat',
+          supabase_user_id: authUser.id,
         },
         settings: {
           displayMode: 'overlay',
@@ -73,7 +110,62 @@ export function InterestModal({ isOpen, kind, onClose }: Props) {
     } finally {
       setPaddleBusy(false)
     }
-  }, [user?.email])
+  }, [])
+
+  const openPaddleSubscriptionCheckout = useCallback(async () => {
+    setPaddleError(null)
+    setPaddleBusy(true)
+    try {
+      if (!isSupabaseConfigured()) {
+        setPaddleError(
+          'Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.',
+        )
+        return
+      }
+      const supabase = getSupabase()
+      if (!supabase) {
+        setPaddleError('Supabase client is not available.')
+        return
+      }
+      const {
+        data: { user: authUser },
+        error: authError,
+      } = await supabase.auth.getUser()
+      if (authError || !authUser?.id) {
+        setPaddleError(
+          authError?.message ??
+            'Sign in to subscribe so we can attach your payment to your account.',
+        )
+        return
+      }
+
+      const paddle = await getPaddleInstance()
+      const priceId = getPaddleSubscriptionPriceId(subscriptionBilling)
+      if (!paddle || !priceId) {
+        setPaddleError(
+          'Paddle subscription is not configured. Add VITE_PADDLE_CLIENT_TOKEN and subscription price ID env vars (see .env.example).',
+        )
+        return
+      }
+
+      paddle.Checkout.open({
+        items: [{ priceId, quantity: 1 }],
+        customer: authUser.email ? { email: authUser.email } : undefined,
+        customData: {
+          supabase_user_id: authUser.id,
+        },
+        settings: {
+          displayMode: 'overlay',
+          theme: 'dark',
+        },
+      })
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Could not start checkout.'
+      setPaddleError(msg)
+    } finally {
+      setPaddleBusy(false)
+    }
+  }, [subscriptionBilling])
 
   return (
     <AnimatePresence>
@@ -118,20 +210,71 @@ export function InterestModal({ isOpen, kind, onClose }: Props) {
             </h2>
             {isLogin ? (
               <LoginAuthPanel onSuccess={onClose} />
+            ) : paddleSubscriptionReady ? (
+              <div className="space-y-4">
+                <p className="text-sm leading-relaxed text-gray-400">
+                  Open Paddle&apos;s{' '}
+                  <span className="text-amber-200/90">sandbox</span> overlay
+                  checkout for your selected plan. Your Supabase user id is sent
+                  as <code className="font-mono text-[11px] text-gray-300">customData.supabase_user_id</code>{' '}
+                  for your backend. Use Paddle&apos;s test cards—no real charges.
+                </p>
+                {!user ? (
+                  <div className="space-y-3">
+                    <p className="text-xs text-amber-100/80">
+                      Sign in below so we can include your account id in checkout.
+                    </p>
+                    <LoginAuthPanel />
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-500">
+                    Signed in — your subscription will be linked to this account.
+                  </p>
+                )}
+                {paddleError ? (
+                  <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+                    {paddleError}
+                  </p>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => void openPaddleSubscriptionCheckout()}
+                  disabled={paddleBusy || !user}
+                  className="w-full rounded-xl bg-gradient-to-r from-secondary to-blue-600 py-3 text-sm font-bold text-white shadow-lg shadow-cyan-500/20 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {paddleBusy
+                    ? 'Starting checkout…'
+                    : `Open subscription checkout (${subscriptionBilling})`}
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-full rounded-xl border border-white/15 bg-transparent py-3 text-sm font-semibold text-gray-300 transition hover:border-white/25 hover:text-white"
+                >
+                  Close
+                </button>
+              </div>
             ) : isBetaLifetime && paddleReady ? (
               <div className="space-y-4">
                 <p className="text-sm leading-relaxed text-gray-400">
                   Open Paddle&apos;s <span className="text-amber-200/90">sandbox</span>{' '}
-                  checkout to test a founding-seat payment. Use Paddle&apos;s test cards—no
-                  real charges.
+                  overlay checkout to test a founding-seat payment.{' '}
+                  <code className="font-mono text-[11px] text-gray-300">customData</code>{' '}
+                  includes <code className="font-mono text-[11px] text-gray-300">flow</code>{' '}
+                  and{' '}
+                  <code className="font-mono text-[11px] text-gray-300">supabase_user_id</code>
+                  . Use Paddle&apos;s test cards—no real charges.
                 </p>
-                {user?.email ? (
+                {!user ? (
+                  <div className="space-y-3">
+                    <p className="text-xs text-amber-100/80">
+                      Sign in below so your founding seat can be linked to your account.
+                    </p>
+                    <LoginAuthPanel />
+                  </div>
+                ) : (
                   <p className="text-xs text-gray-500">
                     Signed in as {user.email} — email can be prefilled in checkout.
-                  </p>
-                ) : (
-                  <p className="text-xs text-amber-100/80">
-                    Tip: sign in first if you want checkout prefilled with your email.
                   </p>
                 )}
                 {paddleError ? (
@@ -142,7 +285,7 @@ export function InterestModal({ isOpen, kind, onClose }: Props) {
                 <button
                   type="button"
                   onClick={() => void openPaddleSandboxCheckout()}
-                  disabled={paddleBusy}
+                  disabled={paddleBusy || !user}
                   className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-white transition hover:bg-violet-600 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {paddleBusy ? 'Starting checkout…' : 'Open Paddle checkout (sandbox)'}
@@ -170,6 +313,30 @@ export function InterestModal({ isOpen, kind, onClose }: Props) {
                     </code>{' '}
                     to <code className="font-mono text-[11px]">.env</code> (see{' '}
                     <code className="font-mono text-[11px]">.env.example</code>).
+                  </p>
+                ) : null}
+                {isSubscribe ? (
+                  <p className="mt-4 rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs text-amber-100/90">
+                    For subscription checkout: set{' '}
+                    <code className="rounded bg-white/10 px-1 font-mono text-[11px]">
+                      VITE_PADDLE_CLIENT_TOKEN
+                    </code>
+                    ,{' '}
+                    <code className="rounded bg-white/10 px-1 font-mono text-[11px]">
+                      VITE_PADDLE_SUBSCRIPTION_MONTHLY_PRICE_ID
+                    </code>{' '}
+                    /{' '}
+                    <code className="rounded bg-white/10 px-1 font-mono text-[11px]">
+                      VITE_PADDLE_SUBSCRIPTION_YEARLY_PRICE_ID
+                    </code>{' '}
+                    (or{' '}
+                    <code className="rounded bg-white/10 px-1 font-mono text-[11px]">
+                      VITE_PADDLE_SUBSCRIPTION_PRICE_ID
+                    </code>{' '}
+                    for both), and Supabase env vars. Keep{' '}
+                    <code className="font-mono text-[11px]">VITE_PADDLE_ENV</code>{' '}
+                    unset or{' '}
+                    <code className="font-mono text-[11px]">sandbox</code> for testing.
                   </p>
                 ) : null}
                 <button

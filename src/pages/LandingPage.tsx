@@ -639,6 +639,7 @@ export function LandingPage() {
         isOpen={showModal}
         kind={modalKind}
         onClose={() => setShowModal(false)}
+        subscriptionBilling={subscriptionBilling}
       />
       <ExtensionLaunchModal
         isOpen={showExtensionModal}

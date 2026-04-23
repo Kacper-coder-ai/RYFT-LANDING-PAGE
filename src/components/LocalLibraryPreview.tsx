@@ -216,7 +216,12 @@ const DEMO_PLAYER_VISIBLE_MS = 4000
  * multi-select files, play selection, in-app player advances through the queue.
  * `pointer-events-none` so wheel scroll reaches the page.
  */
-export function LocalLibraryPreview() {
+export function LocalLibraryPreview({
+  embed = false,
+}: {
+  /** Omit outer spacing when nested (e.g. Download section scaled preview). */
+  embed?: boolean
+} = {}) {
   const diskGb = '35.6'
   /** Bumped on unmount so Strict Mode / remounts never leave a stale async cycle driving state. */
   const libraryCycleRunRef = useRef(0)
@@ -229,8 +234,9 @@ export function LocalLibraryPreview() {
   const [queueIndex, setQueueIndex] = useState(0)
   const [trackProgress, setTrackProgress] = useState(0)
 
-  const navBtn =
-    'flex w-full items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 text-left text-[11px] font-semibold sm:text-xs'
+  const navBtn = embed
+    ? 'flex w-full items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 text-left text-[11px] font-semibold sm:text-xs'
+    : 'flex w-full items-center gap-1.5 rounded-lg border border-transparent px-1.5 py-1 text-left text-[10px] font-semibold sm:gap-2 sm:px-2 sm:py-1.5 sm:text-xs'
 
   const currentTrack = WEBNOVEL_FILES.find((f) => f.id === DEMO_QUEUE_IDS[queueIndex])
 
@@ -342,8 +348,16 @@ export function LocalLibraryPreview() {
       : undefined
 
   return (
-    <div className="pointer-events-none mt-6 select-none lg:mt-8">
-      <div className="flex flex-col overflow-visible rounded-xl border border-white/10 bg-[#0B0B0F] shadow-[0_24px_80px_-20px_rgba(0,0,0,0.8)]">
+    <div
+      className={`pointer-events-none select-none ${embed ? '' : 'mt-6 lg:mt-8'}`}
+    >
+      <div
+        className={`flex flex-col overflow-visible border border-white/10 bg-[#0B0B0F] shadow-[0_24px_80px_-20px_rgba(0,0,0,0.8)] ${
+          embed
+            ? 'rounded-xl'
+            : 'rounded-none border-x-0 sm:rounded-xl sm:border-x'
+        }`}
+      >
         {/* Window title bar */}
         <div className="flex shrink-0 items-center gap-2 border-b border-white/10 bg-[#12121a] px-2.5 py-1.5 sm:px-3">
           <div className="flex items-center gap-1.5" aria-hidden>
@@ -357,9 +371,21 @@ export function LocalLibraryPreview() {
         </div>
 
         <div className="flex bg-[#0B0B0F]">
-          <aside className="flex w-[7.75rem] shrink-0 flex-col border-r border-white/10 bg-[#0e0e11]/95 sm:w-[10.5rem]">
-            <div className="flex items-center gap-1.5 border-b border-white/5 px-2 py-2 sm:px-2.5 sm:py-2.5">
-              <div className="relative flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-md bg-gradient-to-br from-purple-600 to-blue-600 shadow-lg sm:h-8 sm:w-8">
+          <aside
+            className={`flex shrink-0 flex-col border-r border-white/10 bg-[#0e0e11]/95 sm:w-[10.5rem] ${
+              embed ? 'w-[7.75rem]' : 'w-[5.5rem] min-[400px]:w-[6.25rem]'
+            }`}
+          >
+            <div
+              className={`flex items-center border-b border-white/5 px-1.5 py-2 sm:px-2.5 sm:py-2.5 ${
+                embed ? 'gap-1.5' : 'gap-1 sm:gap-1.5'
+              }`}
+            >
+              <div
+                className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-md bg-gradient-to-br from-purple-600 to-blue-600 shadow-lg ${
+                  embed ? 'h-7 w-7 sm:h-8 sm:w-8' : 'h-6 w-6 sm:h-8 sm:w-8'
+                }`}
+              >
                 <div className="relative flex h-3 items-center gap-px sm:h-4 sm:gap-0.5">
                   <span
                     className="w-0.5 rounded-full bg-white animate-[equalizer_1s_ease-in-out_infinite] sm:w-1"
@@ -388,7 +414,11 @@ export function LocalLibraryPreview() {
                 </div>
               </div>
             </div>
-            <nav className="flex flex-col gap-1 p-1.5 sm:p-2">
+            <nav
+              className={`flex flex-col gap-1 sm:p-2 ${
+                embed ? 'p-1.5' : 'p-1 sm:p-2'
+              }`}
+            >
               <div className={`${navBtn} text-gray-400`}>
                 <Zap className="h-3.5 w-3.5 shrink-0 opacity-80 sm:h-4 sm:w-4" />
                 <span className="truncate">Text-to-Speech</span>
@@ -570,7 +600,11 @@ export function LocalLibraryPreview() {
             </div>
 
             <div
-              className={`relative grid grid-cols-1 overflow-x-hidden px-2 pb-2 pt-0 transition-[background-color] duration-300 ease-out motion-reduce:transition-none sm:px-3 sm:pb-2 ${playerOpen ? 'bg-black/25' : 'bg-transparent'}`}
+              className={`relative grid grid-cols-1 overflow-x-hidden px-2 pb-2 pt-0 transition-[background-color] duration-300 ease-out motion-reduce:transition-none sm:px-3 sm:pb-2 ${playerOpen ? 'bg-black/25' : 'bg-transparent'} ${
+                embed
+                  ? ''
+                  : 'min-h-[min(22rem,52svh)] md:min-h-0'
+              }`}
             >
               {/*
                 Grid layer sets row height (collections → unsorted). Folder is position:absolute
@@ -596,7 +630,13 @@ export function LocalLibraryPreview() {
                       New Folder
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-1.5 sm:gap-2 md:grid-cols-3 lg:grid-cols-4">
+                  <div
+                    className={`grid gap-1.5 sm:gap-2 md:grid-cols-3 lg:grid-cols-4 ${
+                      embed
+                        ? 'grid-cols-2'
+                        : 'grid-cols-1 min-[380px]:grid-cols-2'
+                    }`}
+                  >
                     {MOCK_FOLDERS.map((f) => {
                       const isWebnovels = f.id === '1'
                       const pulse = isWebnovels && webnovelsActive
@@ -654,7 +694,13 @@ export function LocalLibraryPreview() {
                       New Draft
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-1.5 sm:gap-2 md:grid-cols-3 lg:grid-cols-4">
+                  <div
+                    className={`grid gap-1.5 sm:gap-2 md:grid-cols-3 lg:grid-cols-4 ${
+                      embed
+                        ? 'grid-cols-2'
+                        : 'grid-cols-1 min-[380px]:grid-cols-2'
+                    }`}
+                  >
                     {MOCK_DRAFTS.map((d) => (
                       <div
                         key={d.id}

@@ -184,8 +184,8 @@ export function VoiceMarquee() {
 
   return (
     <>
-      <div className="pointer-events-none absolute top-0 left-0 z-20 h-full w-24 bg-gradient-to-r from-[#0B0B0F] to-transparent md:w-48" />
-      <div className="pointer-events-none absolute top-0 right-0 z-20 h-full w-24 bg-gradient-to-l from-[#0B0B0F] to-transparent md:w-48" />
+      <div className="pointer-events-none absolute top-0 left-0 z-20 h-full w-12 bg-gradient-to-r from-[#0B0B0F] to-transparent sm:w-20 md:w-48" />
+      <div className="pointer-events-none absolute top-0 right-0 z-20 h-full w-12 bg-gradient-to-l from-[#0B0B0F] to-transparent sm:w-20 md:w-48" />
 
       <div className="relative w-full overflow-hidden py-2">
         <div className="animate-scroll">

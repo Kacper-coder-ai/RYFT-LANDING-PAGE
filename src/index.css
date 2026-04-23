@@ -241,6 +241,10 @@ body {
   padding: 0;
   min-height: 100svh;
   -webkit-font-smoothing: antialiased;
+  /* Notched phones: keep content off the curved edges */
+  padding-left: max(0px, env(safe-area-inset-left, 0px));
+  padding-right: max(0px, env(safe-area-inset-right, 0px));
+  padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
 }
 
 /* Kept for clarity if other pages need an explicit scroll hint; overflow is

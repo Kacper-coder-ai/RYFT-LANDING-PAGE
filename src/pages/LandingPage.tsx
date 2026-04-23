@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+} from 'react'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import {
   ArrowDown,
@@ -36,11 +42,10 @@ import {
   InterestModal,
   type InterestKind,
 } from '../components/InterestModal'
-import { ExtensionLaunchModal } from '../components/ExtensionLaunchModal'
 import { ContactSupportModal } from '../components/ContactSupportModal'
 import { SocialFooterLinks } from '../components/SocialFooterLinks'
+import { DownloadSection } from '../components/DownloadSection'
 import { HeroScrapePipeline } from '../components/HeroScrapePipeline'
-import { LaunchCountdown } from '../components/LaunchCountdown'
 import { LocalLibraryPreview } from '../components/LocalLibraryPreview'
 import { VoiceMarquee } from '../components/VoiceMarquee'
 import { useVoiceManifest } from '../hooks/useVoiceManifest'
@@ -532,7 +537,6 @@ export function LandingPage() {
   const unlimitedOrbRightY = useTransform(scrollY, [400, 1200], [0, reducedMotion ? 0 : -32])
 
   const [showModal, setShowModal] = useState(false)
-  const [showExtensionModal, setShowExtensionModal] = useState(false)
   const [modalKind, setModalKind] = useState<InterestKind>('login')
   const [subscriptionBilling, setSubscriptionBilling] = useState<
     'monthly' | 'yearly'
@@ -614,6 +618,16 @@ export function LandingPage() {
     })
   }, [reducedMotion])
 
+  const scrollToSection = useCallback(
+    (e: ReactMouseEvent<HTMLButtonElement>, id: string) => {
+      e.preventDefault()
+      document.getElementById(id)?.scrollIntoView({
+        behavior: reducedMotion ? 'auto' : 'smooth',
+      })
+    },
+    [reducedMotion],
+  )
+
   const betaLifetimeSoldOut =
     BETA_LIFETIME_SEATS_CLAIMED >= BETA_LIFETIME_SEATS_TOTAL
   const betaLifetimeSeatsRemaining = Math.max(
@@ -641,10 +655,6 @@ export function LandingPage() {
         onClose={() => setShowModal(false)}
         subscriptionBilling={subscriptionBilling}
       />
-      <ExtensionLaunchModal
-        isOpen={showExtensionModal}
-        onClose={() => setShowExtensionModal(false)}
-      />
       <ContactSupportModal
         isOpen={showContactSupportModal}
         onClose={() => setShowContactSupportModal(false)}
@@ -653,13 +663,13 @@ export function LandingPage() {
 
       <LandingScrollProgress />
 
-      <nav className="glass fixed top-0 z-50 w-full transition-all duration-300">
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
+      <nav className="glass fixed top-0 z-50 w-full transition-all duration-300 pt-[env(safe-area-inset-top,0px)]">
+        <div className="mx-auto flex min-h-[3.25rem] max-w-7xl items-center justify-between gap-2 px-4 py-2 sm:h-20 sm:gap-3 sm:px-6 sm:py-0">
           <button
             type="button"
             onClick={scrollLandingToTop}
             aria-label="Scroll to top"
-            className="group flex cursor-pointer items-center gap-3 border-0 bg-transparent p-0 text-2xl font-black tracking-widest text-inherit transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0B0F]"
+            className="group flex min-w-0 cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-lg font-black tracking-widest text-inherit transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0B0F] min-[400px]:gap-3 min-[400px]:text-xl sm:text-2xl"
           >
             <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-primary to-secondary shadow-lg transition duration-300 group-hover:shadow-violet-500/50">
               <div className="flex h-5 items-center gap-[3px]">
@@ -682,21 +692,33 @@ export function LandingPage() {
               </div>
               <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
             </div>
-            <span className="transition duration-300 group-hover:text-white">
+            <span className="truncate transition duration-300 group-hover:text-white">
               RYFT
             </span>
           </button>
 
           <div className="hidden gap-8 text-sm font-medium text-gray-400 md:flex">
-            <a href="#voices" className="transition hover:text-white">
+            <button
+              type="button"
+              onClick={(e) => scrollToSection(e, 'voices')}
+              className="cursor-pointer border-0 bg-transparent p-0 font-medium text-gray-400 transition hover:text-white"
+            >
               Voices
-            </a>
-            <a href="#unlimited-tts" className="transition hover:text-white">
+            </button>
+            <button
+              type="button"
+              onClick={(e) => scrollToSection(e, 'unlimited-tts')}
+              className="cursor-pointer border-0 bg-transparent p-0 font-medium text-gray-400 transition hover:text-white"
+            >
               Features
-            </a>
-            <a href="#pricing" className="transition hover:text-white">
+            </button>
+            <button
+              type="button"
+              onClick={(e) => scrollToSection(e, 'pricing')}
+              className="cursor-pointer border-0 bg-transparent p-0 font-medium text-gray-400 transition hover:text-white"
+            >
               Pricing
-            </a>
+            </button>
             <button
               type="button"
               onClick={() => setShowContactSupportModal(true)}
@@ -706,11 +728,11 @@ export function LandingPage() {
             </button>
           </div>
 
-          <div className="flex min-w-0 items-center gap-2 sm:gap-4">
+          <div className="flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-4">
             <button
               type="button"
               onClick={() => setShowContactSupportModal(true)}
-              className="shrink-0 text-sm font-medium text-gray-400 transition hover:text-white md:hidden"
+              className="shrink-0 text-xs font-medium text-gray-400 transition hover:text-white sm:text-sm md:hidden"
             >
               Support
             </button>
@@ -779,35 +801,36 @@ export function LandingPage() {
                 type="button"
                 onClick={() => openModal('login')}
                 disabled={authLoading}
-                className="shrink-0 px-3 py-2 text-sm font-medium text-gray-300 transition hover:text-white disabled:opacity-50 md:px-4"
+                className="shrink-0 px-2 py-1.5 text-xs font-medium text-gray-300 transition hover:text-white disabled:opacity-50 sm:px-3 sm:py-2 sm:text-sm md:px-4"
               >
                 Login
               </button>
             )}
             <button
               type="button"
-              onClick={() => setShowExtensionModal(true)}
-              className="flex items-center gap-2 rounded-full border border-white/10 bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-violet-500/20 transition hover:-translate-y-0.5 hover:bg-violet-600"
+              onClick={(e) => scrollToSection(e, 'download')}
+              aria-label="Download browser extension"
+              className="flex cursor-pointer items-center gap-1.5 rounded-full border border-white/10 bg-primary px-3 py-2 text-xs font-bold text-white shadow-lg shadow-violet-500/20 transition active:scale-[0.98] sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm md:hover:-translate-y-0.5 md:hover:bg-violet-600"
             >
-              <Puzzle className="h-4 w-4" />
-              Extension
+              <Puzzle className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
+              <span className="hidden min-[360px]:inline">Extension</span>
             </button>
           </div>
         </div>
       </nav>
 
-      <section className="relative overflow-hidden px-6 pb-14 pt-24">
+      <section className="relative overflow-hidden px-4 pb-12 pt-[calc(5rem+env(safe-area-inset-top,0px))] sm:px-6 sm:pb-14 sm:pt-24">
         <motion.div
-          className="pointer-events-none absolute top-0 left-1/2 -z-10 h-[600px] w-[1000px] -translate-x-1/2 animate-pulse-slow rounded-full bg-primary/20 blur-[120px]"
+          className="pointer-events-none absolute top-0 left-1/2 -z-10 h-[600px] w-[1000px] -translate-x-1/2 animate-pulse-slow rounded-full bg-primary/10 blur-[120px]"
           style={{ y: heroBlobPrimaryY }}
         />
         <motion.div
-          className="pointer-events-none absolute right-0 bottom-0 -z-10 h-[600px] w-[800px] rounded-full bg-secondary/10 blur-[100px]"
+          className="pointer-events-none absolute right-0 bottom-0 -z-10 h-[600px] w-[800px] rounded-full bg-secondary/5 blur-[100px]"
           style={{ y: heroBlobSecondaryY }}
         />
 
         <div className="relative z-10 mx-auto max-w-7xl text-center">
-          <h1 className="mb-6 text-5xl leading-none font-black tracking-tighter md:text-8xl">
+          <h1 className="mb-5 text-[clamp(2rem,9.2vw,3.45rem)] leading-[1.02] font-black tracking-tighter sm:mb-6 sm:text-5xl sm:leading-none md:text-8xl">
             Text{' '}
             <span className="inline-block -translate-y-1 transform text-gray-600">
               →
@@ -817,7 +840,7 @@ export function LandingPage() {
             </span>
           </h1>
 
-          <p className="mx-auto mb-6 max-w-3xl text-lg leading-relaxed font-medium text-gray-300 md:text-2xl">
+          <p className="mx-auto mb-6 max-w-3xl px-1 text-base leading-relaxed font-medium text-gray-300 sm:px-0 sm:text-lg md:text-2xl">
             Turn any webnovel or text into a{' '}
             <span className="border-b border-primary/50 pb-0.5 text-white">
               high quality audiobook
@@ -825,12 +848,8 @@ export function LandingPage() {
             .
           </p>
 
-          <LaunchCountdown />
-
-          <div className="group perspective-1000 relative mx-auto max-w-5xl">
-            <div className="absolute -inset-0.5 rounded-[2.5rem] bg-gradient-to-r from-primary to-secondary opacity-20 blur transition duration-500 group-hover:opacity-40" />
-
-            <div className="relative flex min-h-[min(34rem,88vh)] flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#0B0B0F] shadow-2xl transition-transform duration-500 hover:-translate-y-2 hover:scale-[1.01] md:min-h-[min(42rem,85vh)]">
+          <div className="perspective-1000 relative mx-auto max-w-5xl">
+            <div className="relative flex min-h-[min(26rem,72svh)] flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#0B0B0F] shadow-2xl shadow-black/40 sm:min-h-[min(30rem,78svh)] md:min-h-[min(42rem,85vh)] md:rounded-[2rem] md:transition-transform md:duration-500 md:hover:-translate-y-2 md:hover:scale-[1.01]">
               {/* ChapterEditorOverlay-style preview: chapter list + editor + bottom dock (voice/format live in dock, not RightSidebar) */}
               <div className="relative flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden border-b border-white/5 bg-white/[0.02] md:min-h-[min(38rem,70vh)] md:border-b-0">
                 <p className="shrink-0 border-b border-white/5 px-4 py-2 text-center text-[10px] font-medium tracking-wide text-gray-500 uppercase md:text-left md:px-5">
@@ -846,14 +865,14 @@ export function LandingPage() {
               </div>
             </div>
 
-            <div className="absolute -bottom-6 left-1/2 z-20 w-full -translate-x-1/2 text-center">
+            <div className="relative z-20 -mt-2 flex justify-center px-2 sm:-mt-3 sm:px-0">
               <button
                 type="button"
-                onClick={() => setShowExtensionModal(true)}
-                className="group inline-flex items-center gap-2 rounded-full border border-primary/35 bg-primary/90 px-8 py-3 text-sm font-bold text-white shadow-2xl shadow-primary/25 transition duration-500 hover:-translate-y-1 hover:border-primary/50 hover:bg-violet-600 hover:shadow-primary/35 sm:text-base"
+                onClick={(e) => scrollToSection(e, 'download')}
+                className="group inline-flex w-full max-w-sm cursor-pointer items-center justify-center gap-2 rounded-full border border-primary/25 bg-primary/80 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-black/35 transition duration-500 sm:w-auto sm:max-w-none sm:px-8 sm:py-3 sm:text-base md:hover:-translate-y-0.5 md:hover:border-primary/40 md:hover:bg-primary"
               >
-                <Puzzle className="h-5 w-5 shrink-0 text-white transition duration-500 group-hover:rotate-180" />
-                Extension Download
+                <DownloadCloud className="h-5 w-5 shrink-0 text-white transition duration-500 group-hover:-translate-y-0.5" />
+                Download the app
               </button>
             </div>
           </div>
@@ -862,14 +881,14 @@ export function LandingPage() {
 
       <motion.section
         id="voices"
-        className="relative overflow-hidden border-y border-white/5 bg-black/50 py-14"
+        className="relative overflow-hidden border-y border-white/5 bg-black/50 py-10 sm:py-14"
         {...sectionReveal}
       >
-        <div className="relative z-10 mb-10 px-6 text-center">
-          <h2 className="mb-4 text-3xl font-black md:text-5xl">
+        <div className="relative z-10 mb-8 px-4 text-center sm:mb-10 sm:px-6">
+          <h2 className="mb-3 text-2xl font-black sm:mb-4 sm:text-3xl md:text-5xl">
             Listen to Any Voice.
           </h2>
-          <div className="inline-flex items-center gap-2 text-sm font-semibold tracking-widest text-gray-400 uppercase">
+          <div className="inline-flex max-w-[95vw] flex-wrap items-center justify-center gap-2 text-xs font-semibold tracking-widest text-gray-400 uppercase sm:text-sm">
             <CheckCircle2 className="h-4 w-4 text-primary" />
             <span>Official Community Presets</span>
           </div>
@@ -880,7 +899,7 @@ export function LandingPage() {
 
       <motion.section
         id="unlimited-tts"
-        className="relative overflow-x-hidden overflow-y-visible border-y border-white/5 bg-[#08080c] py-14 md:py-16"
+        className="relative overflow-x-hidden overflow-y-visible border-y border-white/5 bg-[#08080c] py-12 sm:py-14 md:py-16"
         {...sectionReveal}
       >
         <div
@@ -910,7 +929,7 @@ export function LandingPage() {
           aria-hidden
         />
 
-        <div className="relative z-10 mx-auto max-w-7xl px-6">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           <div className="mb-8 text-center md:mb-10">
             <div className="unlimited-tts-intro mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-bold tracking-widest text-primary uppercase shadow-[0_0_24px_rgba(139,92,246,0.2)]">
               <span className="relative flex h-6 w-6 items-center justify-center rounded-full bg-primary/20">
@@ -936,44 +955,47 @@ export function LandingPage() {
               ))}
             </div>
 
-            <h2 className="unlimited-tts-intro-delay mb-3 text-3xl font-black md:text-5xl">
+            <h2 className="unlimited-tts-intro-delay mb-3 text-2xl font-black sm:text-3xl md:text-5xl">
               Generate{' '}
               <span className="glow-text animate-gradient-x bg-gradient-to-r from-primary via-violet-300 to-secondary bg-clip-text text-transparent">
                 infinite TTS audio.
               </span>
             </h2>
-            <p className="unlimited-tts-intro-body mx-auto max-w-2xl text-lg leading-relaxed text-gray-400">
+            <p className="unlimited-tts-intro-body mx-auto max-w-2xl px-1 text-base leading-relaxed text-gray-400 sm:px-0 sm:text-lg">
               Turn as much text as you want into
               audio. No Limits.
             </p>
           </div>
 
-          <LocalLibraryPreview />
+          {/* Full-bleed on small screens so the library mock isn’t squeezed by px-4 */}
+          <div className="-mx-4 w-[calc(100%+2rem)] max-w-[100vw] sm:mx-0 sm:w-full sm:max-w-none">
+            <LocalLibraryPreview />
+          </div>
         </div>
       </motion.section>
 
       <motion.section
         id="features"
-        className="relative overflow-hidden px-6 py-20"
+        className="relative overflow-hidden px-4 py-14 sm:px-6 sm:py-20"
         {...sectionReveal}
       >
         <div className="pointer-events-none absolute top-1/2 right-0 -z-10 h-[800px] w-[800px] -translate-y-1/2 rounded-full bg-gradient-to-b from-primary/10 to-transparent blur-[120px]" />
 
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 lg:grid-cols-2">
-          <div className="order-2 lg:order-1">
+          <div className="order-1 lg:order-1">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-green-500/20 bg-green-500/10 px-4 py-2 text-xs font-bold tracking-widest text-green-400 uppercase">
               <span className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
               100% Offline Ready
             </div>
 
-            <h2 className="mb-4 text-4xl leading-tight font-black md:text-6xl">
+            <h2 className="mb-4 text-3xl leading-tight font-black sm:text-4xl md:text-6xl">
               Batch Export <br />
               <span className="bg-gradient-to-r from-green-400 to-emerald-600 bg-clip-text text-transparent">
                 in any format.
               </span>
             </h2>
 
-            <p className="mb-5 text-lg leading-relaxed text-gray-400">
+            <p className="mb-5 text-base leading-relaxed text-gray-400 sm:text-lg">
               Convert entire webnovels into audiobooks. Export batches as{' '}
               <span className="font-bold text-white">
                 MP3, WAV, M4A, FLAC, and more
@@ -1019,8 +1041,8 @@ export function LandingPage() {
             </button>
           </div>
 
-          <div className="perspective-1000 relative order-1 lg:order-2">
-            <div className="absolute -top-6 -right-6 z-20 max-w-[min(100%,14rem)] animate-[bounce_3s_infinite] sm:max-w-none">
+          <div className="perspective-1000 relative order-2 lg:order-2">
+            <div className="absolute -top-1 right-0 z-20 max-w-[min(100%,13rem)] animate-[bounce_3s_infinite] sm:-top-6 sm:-right-6 sm:max-w-none">
               <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#1A1A1A] p-4 shadow-2xl">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-500/20">
                   <Music className="h-5 w-5 text-red-500" />
@@ -1036,7 +1058,7 @@ export function LandingPage() {
               </div>
             </div>
 
-            <div className="relative rotate-y-[-5deg] overflow-hidden rounded-[2rem] border border-white/10 bg-[#0B0B0F]/90 p-8 shadow-2xl backdrop-blur-xl transition duration-500 hover:rotate-y-0">
+            <div className="relative rotate-y-[-5deg] overflow-hidden rounded-2xl border border-white/10 bg-[#0B0B0F]/90 p-4 shadow-2xl backdrop-blur-xl transition duration-500 sm:rounded-[2rem] sm:p-8 md:hover:rotate-y-0">
               <div className="mb-8 flex items-center justify-between border-b border-white/5 pb-4">
                 <div className="flex items-center gap-3">
                   <DownloadCloud className="h-5 w-5 text-primary" />
@@ -1128,7 +1150,7 @@ export function LandingPage() {
       </motion.section>
 
       <motion.section
-        className="relative overflow-hidden border-t border-white/5 bg-[#0B0B0F] py-20"
+        className="relative overflow-hidden border-t border-white/5 bg-[#0B0B0F] py-14 sm:py-20"
         {...sectionReveal}
       >
         <div
@@ -1143,8 +1165,8 @@ export function LandingPage() {
         <div className="absolute top-0 left-0 -z-10 h-[500px] w-[500px] rounded-full bg-cyan-500/10 blur-[120px]" />
         <div className="absolute right-0 bottom-0 -z-10 h-[500px] w-[500px] rounded-full bg-blue-600/10 blur-[120px]" />
 
-        <div className="relative z-10 mx-auto max-w-7xl px-6">
-          <div className="mb-10 text-center">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="mb-8 text-center sm:mb-10">
             <div className="mb-4 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
               <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-xs font-bold tracking-widest text-cyan-400 uppercase">
                 <ScanFace className="h-4 w-4" /> Multi-Cast Mode
@@ -1154,13 +1176,13 @@ export function LandingPage() {
                 Coming soon — not available yet
               </div>
             </div>
-            <h2 className="mb-4 text-4xl font-black md:text-6xl">
+            <h2 className="mb-4 text-3xl font-black sm:text-4xl md:text-6xl">
               Custom Voice <br />
               <span className="bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">
                 for each Character.
               </span>
             </h2>
-            <p className="mx-auto max-w-2xl text-lg text-gray-400">
+            <p className="mx-auto max-w-2xl px-1 text-base text-gray-400 sm:px-0 sm:text-lg">
               The RYFT engine automatically identifies the characters in your text
               and assigns custom voices to them based on your preference.
             </p>
@@ -1178,7 +1200,7 @@ export function LandingPage() {
 
           <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
             <div className="relative lg:col-span-7">
-              <div className="relative h-[500px] overflow-hidden rounded-2xl border border-white/10 bg-[#121215] shadow-2xl">
+              <div className="relative h-[min(26rem,70svh)] overflow-hidden rounded-2xl border border-white/10 bg-[#121215] shadow-2xl sm:h-[500px]">
                 <div className="flex h-10 items-center gap-2 border-b border-white/5 bg-white/[0.02] px-4">
                   <div className="h-3 w-3 rounded-full bg-red-500/20" />
                   <div className="h-3 w-3 rounded-full bg-yellow-500/20" />
@@ -1188,7 +1210,7 @@ export function LandingPage() {
                   </span>
                 </div>
 
-                <div className="relative space-y-6 p-8 font-mono text-sm leading-loose text-gray-500 md:text-base">
+                <div className="relative space-y-4 p-4 font-mono text-xs leading-loose text-gray-500 sm:space-y-6 sm:p-8 sm:text-sm md:text-base">
                   <div
                     className="absolute left-0 z-20 h-px w-full bg-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.8)] transition-all duration-300"
                     style={{
@@ -1231,7 +1253,7 @@ export function LandingPage() {
               </div>
             </div>
 
-            <div className="relative h-[500px] space-y-4 lg:col-span-5">
+            <div className="relative min-h-0 space-y-3 sm:space-y-4 lg:col-span-5 lg:h-[500px]">
               <div className="mb-2 flex items-end justify-between px-2">
                 <span className="text-xs font-bold tracking-widest text-gray-500 uppercase">
                   Detected Cast
@@ -1308,7 +1330,7 @@ export function LandingPage() {
 
       <motion.section
         id="pricing"
-        className="relative px-6 py-20"
+        className="relative px-4 py-14 sm:px-6 sm:py-20"
         {...sectionReveal}
       >
         <div className="pointer-events-none absolute top-1/2 left-1/2 -z-10 h-[500px] w-full max-w-3xl -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5 blur-[120px]" />
@@ -1326,13 +1348,13 @@ export function LandingPage() {
                     {BETA_LIFETIME_SEATS_TOTAL} seats only
                   </span>
                 </div>
-                <h2 className="mb-4 text-4xl font-black md:text-5xl">
+                <h2 className="mb-4 text-3xl font-black sm:text-4xl md:text-5xl">
                   Founding{' '}
                   <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                     lifetime access.
                   </span>
                 </h2>
-                <p className="mx-auto max-w-2xl text-lg text-gray-400">
+                <p className="mx-auto max-w-2xl px-1 text-base text-gray-400 sm:px-0 sm:text-lg">
                   Help shape RYFT during the beta. Pay once—no subscription—
                   and keep the software for life. When the last seat is gone,
                   this offer ends and we switch to recurring plans.
@@ -1577,13 +1599,13 @@ export function LandingPage() {
                 <div className="mb-4 inline-flex rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-bold tracking-widest text-gray-300 uppercase">
                   Lifetime Founding Member — sold out
                 </div>
-                <h2 className="mb-4 text-4xl font-black md:text-5xl">
+                <h2 className="mb-4 text-3xl font-black sm:text-4xl md:text-5xl">
                   Subscribe to{' '}
                   <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                     RYFT.
                   </span>
                 </h2>
-                <p className="mx-auto max-w-2xl text-lg text-gray-400">
+                <p className="mx-auto max-w-2xl px-1 text-base text-gray-400 sm:px-0 sm:text-lg">
                   The founding {BETA_LIFETIME_SEATS_TOTAL} lifetime licenses are
                   gone. Ongoing access is now on a subscription—pick monthly or
                   annual billing.
@@ -1691,11 +1713,13 @@ export function LandingPage() {
         </div>
       </motion.section>
 
+      <DownloadSection reveal={sectionReveal} />
+
       <motion.footer
-        className="border-t border-white/5 bg-black py-8"
+        className="border-t border-white/5 bg-black py-8 pb-[max(2rem,env(safe-area-inset-bottom,0px))]"
         {...sectionReveal}
       >
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-6 md:flex-row">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-4 sm:px-6 md:flex-row">
           <button
             type="button"
             onClick={scrollLandingToTop}

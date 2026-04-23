@@ -17,7 +17,7 @@ interface ImportMetaEnv {
   readonly VITE_PADDLE_SUBSCRIPTION_YEARLY_PRICE_ID?: string
   /** sandbox (default) or production */
   readonly VITE_PADDLE_ENV?: string
-  /** Web3Forms access key — https://web3forms.com (set “Send to” email to info@ryft.us) */
+  /** Web3Forms access key — https://web3forms.com (set “Send to” email to support@ryft.us) */
   readonly VITE_WEB3FORMS_ACCESS_KEY?: string
 }
 

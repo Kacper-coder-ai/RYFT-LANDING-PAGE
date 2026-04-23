@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useState } from 'react'
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock'
 import { X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import {
@@ -56,6 +57,8 @@ export function InterestModal({
   const { user } = useAuth()
   const [paddleBusy, setPaddleBusy] = useState(false)
   const [paddleError, setPaddleError] = useState<string | null>(null)
+
+  useBodyScrollLock(isOpen)
 
   const openPaddleSandboxCheckout = useCallback(async () => {
     setPaddleError(null)

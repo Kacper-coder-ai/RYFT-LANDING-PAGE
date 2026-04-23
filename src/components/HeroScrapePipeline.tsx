@@ -164,7 +164,7 @@ export function HeroScrapeAnalyzeChapter({
     <div
       role="img"
       aria-label="Animation: extension scraping a web novel page"
-      className={`flex h-full min-h-0 w-full min-w-0 flex-col bg-[#1c1c1e] ${interactive ? '' : 'select-none'} ${className}`.trim()}
+      className={`flex h-full min-h-0 w-full min-w-0 flex-col bg-[#1c1c1e] ${interactive ? '' : 'pointer-events-none select-none'} ${className}`.trim()}
     >
       {/* Browser chrome — dark mode, closer to real Chromium */}
       <div className="flex shrink-0 items-center gap-2 border-b border-black/40 bg-[#2b2b2d] px-3 py-2.5 sm:px-4">
@@ -542,7 +542,7 @@ export function HeroScrapePipeline({
               role="img"
               aria-label="Animation: chapter editor overlay"
               className={`absolute inset-0 flex flex-col bg-[#0B0B0F] ${
-                interactive ? '' : 'pointer-events-auto'
+                interactive ? '' : 'pointer-events-none'
               }`}
               initial={{ opacity: 0, x: 28 }}
               animate={{ opacity: 1, x: 0 }}

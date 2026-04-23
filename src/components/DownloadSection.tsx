@@ -1,6 +1,7 @@
 import { type ReactNode, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Puzzle, Terminal, X } from 'lucide-react'
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock'
 import { landingSectionReveal } from './LandingScrollChrome'
 import { LocalLibraryPreview } from './LocalLibraryPreview'
 import { HeroScrapeAnalyzeChapter } from './HeroScrapePipeline'
@@ -68,24 +69,12 @@ function DownloadTile({
 
 type DownloadSectionProps = {
   reveal: ReturnType<typeof landingSectionReveal>
-  /** Override default: open Web Store URL from env, or scroll to #download */
-  onExtensionClick?: () => void
 }
 
-function defaultExtensionClick() {
-  const url = import.meta.env.VITE_CHROME_WEB_STORE_URL?.trim()
-  if (url) {
-    window.open(url, '_blank', 'noopener,noreferrer')
-    return
-  }
-  document.getElementById('download')?.scrollIntoView({ behavior: 'smooth' })
-}
-
-export function DownloadSection({
-  reveal,
-  onExtensionClick = defaultExtensionClick,
-}: DownloadSectionProps) {
+export function DownloadSection({ reveal }: DownloadSectionProps) {
   const [unsupportedFormatOpen, setUnsupportedFormatOpen] = useState(false)
+  const [extensionLaunchOpen, setExtensionLaunchOpen] = useState(false)
+  useBodyScrollLock(unsupportedFormatOpen || extensionLaunchOpen)
 
   return (
     <motion.section
@@ -184,7 +173,7 @@ export function DownloadSection({
               <DownloadTile
                 icon={<Puzzle className="h-5 w-5 text-primary" />}
                 platform="Chrome Web Store"
-                onClick={onExtensionClick}
+                onClick={() => setExtensionLaunchOpen(true)}
               />
             </div>
           </div>
@@ -233,6 +222,57 @@ export function DownloadSection({
               <button
                 type="button"
                 onClick={() => setUnsupportedFormatOpen(false)}
+                className="mt-8 w-full rounded-xl bg-primary py-3 text-sm font-bold text-white transition hover:bg-violet-600"
+              >
+                OK
+              </button>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {extensionLaunchOpen ? (
+          <motion.div
+            key="extension-launch"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+            onClick={() => setExtensionLaunchOpen(false)}
+            role="presentation"
+          >
+            <motion.div
+              initial={{ scale: 0.94, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.94, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+              className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#14141c] p-8 shadow-2xl"
+              onClick={(ev) => ev.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="extension-launch-title"
+            >
+              <button
+                type="button"
+                onClick={() => setExtensionLaunchOpen(false)}
+                className="absolute right-4 top-4 text-gray-400 transition hover:text-white"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <h2
+                id="extension-launch-title"
+                className="mb-3 pr-8 text-2xl font-bold text-white"
+              >
+                Chrome Web Store
+              </h2>
+              <p className="text-sm leading-relaxed text-gray-400">
+                The extension will be available on launch.
+              </p>
+              <button
+                type="button"
+                onClick={() => setExtensionLaunchOpen(false)}
                 className="mt-8 w-full rounded-xl bg-primary py-3 text-sm font-bold text-white transition hover:bg-violet-600"
               >
                 OK

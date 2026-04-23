@@ -194,11 +194,14 @@ function HeroChapterEditorPreview({
   activeIndex,
   onSelectChapter,
   compact = false,
+  interactive = true,
 }: {
   activeIndex: number
   onSelectChapter: (index: number) => void
   /** Tighter layout so the hero slideshow can show the full overlay including the generate dock. */
   compact?: boolean
+  /** When false, demo is display-only (hero pipeline). */
+  interactive?: boolean
 }) {
   const active = HERO_CHAPTER_EDITOR_CHAPTERS[activeIndex]
   const totalWords = HERO_CHAPTER_EDITOR_CHAPTERS.reduce(
@@ -212,7 +215,7 @@ function HeroChapterEditorPreview({
         compact
           ? 'h-full min-h-0 flex-1'
           : 'min-h-[340px] flex-1 md:min-h-[380px]'
-      }`}
+      } ${interactive ? '' : 'pointer-events-none select-none'}`}
     >
       {/* Left — chapter list (ChapterEditorOverlay sidebar) */}
       <div
@@ -269,7 +272,10 @@ function HeroChapterEditorPreview({
             <button
               key={chapter.id}
               type="button"
-              onClick={() => onSelectChapter(index)}
+              tabIndex={interactive ? 0 : -1}
+              onClick={
+                interactive ? () => onSelectChapter(index) : undefined
+              }
               className={`mb-2 w-full rounded-xl text-left transition-all ${
                 compact ? 'px-2 py-1.5' : 'px-3 py-2.5'
               } ${
@@ -690,7 +696,7 @@ export function LandingPage() {
                   style={{ animationDelay: '100ms' }}
                 />
               </div>
-              <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
             </div>
             <span className="truncate transition duration-300 group-hover:text-white">
               RYFT
@@ -819,7 +825,7 @@ export function LandingPage() {
         </div>
       </nav>
 
-      <section className="relative overflow-hidden px-4 pb-12 pt-[calc(5rem+env(safe-area-inset-top,0px))] sm:px-6 sm:pb-14 sm:pt-24">
+      <section className="relative overflow-x-hidden px-4 pb-12 pt-[calc(5rem+env(safe-area-inset-top,0px))] sm:px-6 sm:pb-14 sm:pt-24">
         <motion.div
           className="pointer-events-none absolute top-0 left-1/2 -z-10 h-[600px] w-[1000px] -translate-x-1/2 animate-pulse-slow rounded-full bg-primary/10 blur-[120px]"
           style={{ y: heroBlobPrimaryY }}
@@ -858,6 +864,7 @@ export function LandingPage() {
                 <HeroScrapePipeline interactive={false}>
                   <HeroChapterEditorPreview
                     compact
+                    interactive={false}
                     activeIndex={heroEditorChapterIndex}
                     onSelectChapter={setHeroEditorChapterIndex}
                   />
@@ -881,7 +888,7 @@ export function LandingPage() {
 
       <motion.section
         id="voices"
-        className="relative overflow-hidden border-y border-white/5 bg-black/50 py-10 sm:py-14"
+        className="relative overflow-x-hidden border-y border-white/5 bg-black/50 py-10 sm:py-14"
         {...sectionReveal}
       >
         <div className="relative z-10 mb-8 px-4 text-center sm:mb-10 sm:px-6">
@@ -976,7 +983,7 @@ export function LandingPage() {
 
       <motion.section
         id="features"
-        className="relative overflow-hidden px-4 py-14 sm:px-6 sm:py-20"
+        className="relative overflow-x-hidden px-4 py-14 sm:px-6 sm:py-20"
         {...sectionReveal}
       >
         <div className="pointer-events-none absolute top-1/2 right-0 -z-10 h-[800px] w-[800px] -translate-y-1/2 rounded-full bg-gradient-to-b from-primary/10 to-transparent blur-[120px]" />
@@ -1150,7 +1157,7 @@ export function LandingPage() {
       </motion.section>
 
       <motion.section
-        className="relative overflow-hidden border-t border-white/5 bg-[#0B0B0F] py-14 sm:py-20"
+        className="relative overflow-x-hidden border-t border-white/5 bg-[#0B0B0F] py-14 sm:py-20"
         {...sectionReveal}
       >
         <div
@@ -1162,8 +1169,8 @@ export function LandingPage() {
               'radial-gradient(ellipse 60% 60% at 50% 50%, #000 70%, transparent 100%)',
           }}
         />
-        <div className="absolute top-0 left-0 -z-10 h-[500px] w-[500px] rounded-full bg-cyan-500/10 blur-[120px]" />
-        <div className="absolute right-0 bottom-0 -z-10 h-[500px] w-[500px] rounded-full bg-blue-600/10 blur-[120px]" />
+        <div className="pointer-events-none absolute top-0 left-0 -z-10 h-[500px] w-[500px] rounded-full bg-cyan-500/10 blur-[120px]" />
+        <div className="pointer-events-none absolute right-0 bottom-0 -z-10 h-[500px] w-[500px] rounded-full bg-blue-600/10 blur-[120px]" />
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           <div className="mb-8 text-center sm:mb-10">
@@ -1363,7 +1370,7 @@ export function LandingPage() {
 
               <div className="mx-auto max-w-5xl">
                 <div className="group relative">
-                  <div className="absolute -inset-[1px] rounded-[28px] bg-gradient-to-b from-primary via-violet-500 to-cyan-500 opacity-80 blur-sm transition duration-500 group-hover:opacity-100" />
+                  <div className="pointer-events-none absolute -inset-[1px] rounded-[28px] bg-gradient-to-b from-primary via-violet-500 to-cyan-500 opacity-80 blur-sm transition duration-500 group-hover:opacity-100" />
                   <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0B0B0F] p-5 md:p-6 lg:p-8">
                     <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-2 lg:gap-6 xl:gap-8">
                       {/* Column 1 — offer, scarcity, included features, then CTA */}
@@ -1745,7 +1752,7 @@ export function LandingPage() {
                   style={{ animationDelay: '100ms' }}
                 />
               </div>
-              <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
             </div>
             <span className="transition duration-300 group-hover:text-white">
               RYFT

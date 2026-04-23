@@ -7,6 +7,7 @@ import {
   openSupportMailtoFallback,
   submitSupportMessage,
 } from '../lib/contactForm'
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock'
 
 type Props = {
   isOpen: boolean
@@ -26,6 +27,8 @@ export function ContactSupportModal({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successKind, setSuccessKind] = useState<'api' | 'mailto' | null>(null)
+
+  useBodyScrollLock(isOpen)
 
   useEffect(() => {
     if (!isOpen) return
